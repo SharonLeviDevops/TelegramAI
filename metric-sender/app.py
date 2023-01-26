@@ -27,14 +27,29 @@ def main():
     while True:
         backlog_per_instance = calc_backlog_per_instance()
         logger.info(f'backlog per instance: {backlog_per_instance}')
-
-        # TODO send the backlog_per_instance metric to cloudwatch
+        cloudwatch = boto3.client('cloudwatch', region_name=config.get('aws_region'))
+        cloudwatch.put_metric_data(
+            MetricData=[
+                {
+                    'MetricName': 'Sharon-telegram',
+                    'Dimensions': [
+                        {
+                            'Name': 'sharon-metrics',
+                            'Value': 'backlog_per_instance'
+                        },
+                    ],
+                    'Unit': 'None',
+                    'Value':  backlog_per_instance
+                },
+            ],
+            Namespace='sharon-metrics-namespace'
+        )
 
         time.sleep(60)
 
 
 if __name__ == '__main__':
-    with open('../config.json') as f:
+    with open('config.json') as f:
         config = json.load(f)
 
     bot_to_worker_queue_name = config.get('bot_to_worker_queue_name')

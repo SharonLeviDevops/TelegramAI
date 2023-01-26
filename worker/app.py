@@ -16,8 +16,9 @@ queue = sqs.get_queue_by_name(
 
 
 def process_msg(msg):
-    search_download_youtube_video(msg)
-
+    video = search_download_youtube_video(msg)
+    client = boto3.client("s3")
+    client.upload_file(video[0]['filename'], "sharon-telegram-bot", video[0]['filename'])
     # TODO upload the downloaded video to your S3 bucket
 
 
@@ -54,4 +55,9 @@ def lambda_handler(event, context):
 
 
 if __name__ == '__main__':
-    main()
+   for i in range(10):
+       process_msg("5sec video")
+       process_msg("10sec video")
+       process_msg("20sec video")
+       process_msg("30sec video")
+       process_msg("60sec video")
